@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI eBook Generator</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 30px; background: #f0f0f0; }
+    input, textarea { width: 100%; padding: 10px; margin: 10px 0; }
+    button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>📚 AI eBook Generator</h1>
+  <form id="bookForm">
+    <input type="text" name="title" placeholder="Book Title" required>
+    <textarea name="description" placeholder="Describe your book" rows="6" required></textarea>
+    <input type="number" name="pages" min="1" max="1000" placeholder="Number of pages (1–1000)" required>
+    <button type="submit">Generate eBook</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    document.getElementById('bookForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        title: form.title.value,
+        description: form.description.value,
+        pages: form.pages.value
+      };
+      document.getElementById("status").textContent = "Generating book... please wait.";
+
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${data.title}.pdf`;
+        link.click();
+        document.getElementById("status").textContent = "✅ Book downloaded!";
+      } else {
+        document.getElementById("status").textContent = "❌ Failed to generate book.";
+      }
+    });
+  </script>
+</body>
+</html>
